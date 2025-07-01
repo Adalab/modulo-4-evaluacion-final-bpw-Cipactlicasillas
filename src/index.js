@@ -37,7 +37,56 @@ server.get("/api/frases", async (req, res) => {
   res.json(results);
 });
 
-server.post("api/frases", async (req, res) => {});
-server.get("api/frases/:id", (req, res) => {});
-server.put("api/frases/:id", (req, res) => {});
-server.delete("api/frases/:id", (req, res) => {});
+server.post("/api/frases", async (req, res) => {
+  const conn = await getConection();
+
+  const [results] = await conn.execute(
+    "INSERT INTO frases (texto,marca_tiempo, descripción) VALUES (?,?,?)",
+    [req.body.texto, req.body.marca_tiempo, req.body.descripción]
+  );
+
+  await conn.end();
+  res.json({
+    success: true,
+    frase: { id: results.insertId, ...req.body },
+  });
+});
+server.put("/api/frases/:id", async (req, res) => {
+  const conn = await getConection();
+  const [result] = await conn.execute(
+    "UPDATE frases SET texto = ?, marca_tiempo = ?, descripción = ? WHERE id = ?;",
+    [req.body.texto, req.body.marca_tiempo, req.body.descripción, req.params.id]
+  );
+  await conn.end();
+  res.json({
+    success: true,
+    frase: { id: req.params.id, ...req.body },
+  });
+});
+server.delete("/api/frases/:id", async (req, res) => {
+  const conn = await getConection();
+  const [results] = await conn.execute("DELETE FROM frases WHERE id = ?", [
+    req.params.id,
+  ]);
+  await conn.end();
+  res.json({
+    success: true,
+  });
+});
+
+server.get("/api/frases/:id", async (req, res) => {
+  const conn = await getConection();
+  const [results] = await conn.query(
+    `SELECT p.id, p.nombre, p.apellido, p.ocupacion, p.descripcion, f.texto 
+     FROM personajes p 
+     JOIN frases f ON p.fk_frases = f.id 
+     WHERE f.id = ?`,
+    [req.params.id]
+  );
+  await conn.end();
+
+  res.json({
+    success: true,
+    frase: results[0],
+  });
+});
