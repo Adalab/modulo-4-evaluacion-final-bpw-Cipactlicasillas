@@ -1,5 +1,5 @@
 
-# 📚 API de Frases de Personajes
+# 📚 API de Frases de Personajes:
 
 
 Esta es una API REST construida con Node.js, Express y MySQL que permite gestionar frases célebres de personajes. La API permite obtener, crear, actualizar y eliminar frases, y está conectada a una base de datos relacional.
